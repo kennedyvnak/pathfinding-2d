@@ -39,7 +39,7 @@ namespace Kennedy.UnityUtility.Pathfinding
 
         public CellPosition GetLocalPosition(Vector2 worldPosition)
         {
-            return new CellPosition(Mathf.FloorToInt(worldPosition.x - offset.x / cellSize), Mathf.FloorToInt(worldPosition.y - offset.y / cellSize));
+            return new CellPosition(Mathf.FloorToInt((worldPosition.x - offset.x) / cellSize), Mathf.FloorToInt((worldPosition.y - offset.y) / cellSize));
         }
 
         public Vector2 GetWorldPosition(CellPosition cell) => new Vector2(cell.x, cell.y) * cellSize + offset;

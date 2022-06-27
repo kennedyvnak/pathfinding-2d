@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Kennedy.UnityUtility.Pathfinding
 {
-    // FIXME: Cell size doesn't change how pathfinding works
     // TODO: Add node block modules (tilemaps)
     public sealed class Pathfinder : MonoBehaviour
     {

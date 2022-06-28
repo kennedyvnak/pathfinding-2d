@@ -1,3 +1,4 @@
+using Kennedy.UnityUtility.Pathfinding.Blocks;
 using Unity.Collections;
 using UnityEngine;
 
@@ -12,15 +13,18 @@ namespace Kennedy.UnityUtility.Pathfinding
 
         public readonly Vector2 offset;
 
+        public readonly GraphBlockBase[] blocks;
+
         public PathNode[] nodes;
         public NativeArray<PathNodeReference> nativeNodes;
 
-        public GridGraph(int width, int height, float cellSize, Vector2 offset)
+        public GridGraph(int width, int height, float cellSize, Vector2 offset, Blocks.GraphBlockBase[] blocks)
         {
             this.width = width;
             this.height = height;
             this.cellSize = cellSize;
             this.offset = offset;
+            this.blocks = blocks;
 
             int size = width * height;
             nodes = new PathNode[size];
@@ -33,6 +37,14 @@ namespace Kennedy.UnityUtility.Pathfinding
                     int i = x + y * width;
                     PathNode node = nodes[i] = new PathNode(this, new CellPosition(x, y));
                     nativeNodes[i] = node.GetReference();
+                    for (int j = 0; j < blocks.Length; j++)
+                    {
+                        if (blocks[j].IsBlocked(node))
+                        {
+                            node.walkable = false;
+                            break;
+                        }
+                    }
                 }
             }
         }

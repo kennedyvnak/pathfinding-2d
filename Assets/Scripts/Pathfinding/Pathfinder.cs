@@ -11,6 +11,7 @@ namespace Kennedy.UnityUtility.Pathfinding
 
         public GridGraph graph { get; private set; }
         private PathPool _pool;
+        private Blocks.GraphBlockBase[] _blocks;
 
         [SerializeField] private int m_GraphWidth;
         [SerializeField] private int m_GraphHeight;
@@ -33,7 +34,8 @@ namespace Kennedy.UnityUtility.Pathfinding
             _neighborsOffset[5] = new CellPosition(-1, +1); // left up
             _neighborsOffset[6] = new CellPosition(+1, -1); // right down
             _neighborsOffset[7] = new CellPosition(+1, +1); // right up
-            graph = new GridGraph(m_GraphWidth, m_GraphHeight, m_GraphCellSize, m_GraphOffset);
+            _blocks = GetComponentsInChildren<Blocks.GraphBlockBase>();
+            graph = new GridGraph(m_GraphWidth, m_GraphHeight, m_GraphCellSize, m_GraphOffset, _blocks);
             _pool = new PathPool();
         }
 

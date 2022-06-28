@@ -51,24 +51,23 @@ namespace Kennedy.UnityUtility.Pathfinding
             while (openList.Length > 0)
             {
                 // get the node with the lowest f score in the list of open nodes
-                int currentNodeIndex = GetLowestFNodeIndex(openList, pathNodes);
-                PathNodeReference currentNode = pathNodes[currentNodeIndex];
+                PathNodeReference currentNode = GetLowestFNode(openList, pathNodes);
 
                 // reached the end
-                if (currentNodeIndex == endNodeIndex)
+                if (currentNode.index == endNodeIndex)
                     break;
 
                 // remove the index of the current node in the open list
                 for (int i = 0; i < openList.Length; i++)
                 {
-                    if (openList[i] == currentNodeIndex)
+                    if (openList[i] == currentNode.index)
                     {
                         openList.RemoveAtSwapBack(i);
                         break;
                     }
                 }
 
-                closedList.Add(currentNodeIndex);
+                closedList.Add(currentNode.index);
 
                 // loops between all current node neighbors
                 for (int i = 0; i < neighborOffsets.Length; i++)
@@ -97,9 +96,9 @@ namespace Kennedy.UnityUtility.Pathfinding
                     if (tentativeGCost < neighborNode.g)
                     {
                         // recording this path because is better than any previous one.
-                        neighborNode.cameFromNodeIndex = currentNodeIndex;
                         neighborNode.g = tentativeGCost;
                         neighborNode.h = CalculateDistanceCost(neighborPosition, end);
+                        neighborNode.cameFromNodeIndex = currentNode.index;
                         pathNodes[neighborNodeIndex] = neighborNode;
 
                         if (!openList.Contains(neighborNodeIndex))
@@ -141,7 +140,7 @@ namespace Kennedy.UnityUtility.Pathfinding
             return k_MoveDiagonalCost * System.Math.Min(xDistance, yDistance) + k_MoveStraightCost * remaining;
         }
 
-        private int GetLowestFNodeIndex(NativeList<int> openList, NativeArray<PathNodeReference> pathNodes)
+        private PathNodeReference GetLowestFNode(NativeList<int> openList, NativeArray<PathNodeReference> pathNodes)
         {
             PathNodeReference lowest = pathNodes[openList[0]];
             for (int i = 1; i < openList.Length; i++)
@@ -150,7 +149,7 @@ namespace Kennedy.UnityUtility.Pathfinding
                 if (testPathNode.f < lowest.f)
                     lowest = testPathNode;
             }
-            return lowest.index;
+            return lowest;
         }
 
         private bool ContainsPosition(CellPosition gridPosition, CellPosition gridSize)

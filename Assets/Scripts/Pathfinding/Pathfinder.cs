@@ -1,15 +1,17 @@
+using System;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
 namespace Kennedy.UnityUtility.Pathfinding
 {
-    // TODO: Add node block modules (tilemaps)
     public sealed class Pathfinder : MonoBehaviour
     {
         private NativeArray<CellPosition> _neighborsOffset;
 
         public GridGraph graph { get; private set; }
+        public bool generatedGraph { get; private set; }
+
         private PathPool _pool;
         private Blocks.GraphBlockBase[] _blocks;
 
@@ -18,10 +20,10 @@ namespace Kennedy.UnityUtility.Pathfinding
         [SerializeField] private float m_GraphCellSize;
         [SerializeField] private Vector2 m_GraphOffset;
 
-        public int GraphWidth => m_GraphWidth;
-        public int GraphHeight => m_GraphHeight;
-        public float GraphCellSize => m_GraphCellSize;
-        public Vector2 GraphOffset => m_GraphOffset;
+        public int GraphWidth => generatedGraph ? graph.width : m_GraphWidth;
+        public int GraphHeight => generatedGraph ? graph.height : m_GraphHeight;
+        public float GraphCellSize => generatedGraph ? graph.cellSize : m_GraphCellSize;
+        public Vector2 GraphOffset => generatedGraph ? graph.offset : m_GraphOffset;
 
         private void Awake()
         {
@@ -36,6 +38,7 @@ namespace Kennedy.UnityUtility.Pathfinding
             _neighborsOffset[7] = new CellPosition(+1, +1); // right up
             _blocks = GetComponentsInChildren<Blocks.GraphBlockBase>();
             graph = new GridGraph(m_GraphWidth, m_GraphHeight, m_GraphCellSize, m_GraphOffset, _blocks);
+            generatedGraph = true;
             _pool = new PathPool();
         }
 
@@ -92,5 +95,10 @@ namespace Kennedy.UnityUtility.Pathfinding
         }
 
         public void ReleasePath(ref Path p) => _pool.Release(ref p);
+
+        public Vector2 GetCellWorldPosition(CellPosition cell)
+        {
+            return GridGraph.GetWorldPosition(cell, GraphCellSize, GraphOffset);
+        }
     }
 }

@@ -22,6 +22,7 @@ namespace Kennedy.UnityUtility.Pathfinding
                 nativeNode.walkable = value;
                 graph.nativeNodes[index] = nativeNode;
                 _walkable = value;
+                graph.InvokeNodeChanged(this);
             }
         }
 

@@ -6,6 +6,8 @@ namespace Kennedy.UnityUtility.Pathfinding
 {
     public class GridGraph
     {
+        public event System.Action<PathNode> NodeChanged;
+
         public readonly int width;
         public readonly int height;
 
@@ -49,12 +51,16 @@ namespace Kennedy.UnityUtility.Pathfinding
             }
         }
 
+        public void InvokeNodeChanged(PathNode node) => NodeChanged?.Invoke(node);
+
         public CellPosition GetLocalPosition(Vector2 worldPosition)
         {
             return new CellPosition(Mathf.FloorToInt((worldPosition.x - offset.x) / cellSize), Mathf.FloorToInt((worldPosition.y - offset.y) / cellSize));
         }
 
-        public Vector2 GetWorldPosition(CellPosition cell) => new Vector2(cell.x, cell.y) * cellSize + offset;
+        public Vector2 GetWorldPosition(CellPosition cell) => GetWorldPosition(cell, cellSize, offset);
+
+        public static Vector2 GetWorldPosition(CellPosition cell, float cellSize, Vector2 offset) => new Vector2(cell.x, cell.y) * cellSize + offset;
 
         public PathNode GetNode(CellPosition cell)
         {

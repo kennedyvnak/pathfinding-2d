@@ -15,7 +15,8 @@ namespace Kennedy.UnityUtility.Pathfinding.Tests
             {
                 Vector2 mousePosition = GetMousePosition();
                 PathNode node = m_Pathfinder.graph.GetNode(mousePosition);
-                node.walkable = !node.walkable;
+                if (node != null)
+                    node.walkable = !node.walkable;
             }
 
             if (Input.GetMouseButtonDown(1))

@@ -14,49 +14,65 @@ namespace Kennedy.UnityUtility.Pathfinding
         private Vector2[] _uv;
         private int[] _tris;
 
-        private void Awake()
+        public Pathfinder pathfinder
         {
-            _pathfinder = GetComponent<Pathfinder>();
+            get
+            {
+                if (!_pathfinder)
+                    _pathfinder = GetComponent<Pathfinder>();
+                return _pathfinder;
+            }
+        }
+
+        public Mesh GeneratedMesh
+        {
+            get
+            {
+                if (!_mesh)
+                    GenerateMesh();
+                return _mesh;
+            }
         }
 
         private void Start()
         {
-            UpdateMesh();
-            if (_pathfinder.graph != null)
-                _pathfinder.graph.NodeChanged += UpdateNode;
+            GenerateMesh();
+            if (pathfinder.graph != null)
+                pathfinder.graph.NodeChanged += UpdateNode;
         }
 
         private void OnDestroy()
         {
-            if (_mesh) DestroyImmediate(_mesh);
+            if (_mesh)
+                DestroyImmediate(_mesh);
         }
 
-        [ContextMenu("Preview Mesh")]
-        public void UpdateMesh()
+        public void GenerateMesh()
         {
-            if (!m_Filter) return;
-            if (!_mesh) _mesh = new Mesh();
+            if (!_mesh)
+            {
+                _mesh = new Mesh();
+                _mesh.name = "Pathfinder-graph";
+            }
 
-            int width = _pathfinder.GraphWidth;
-            int height = _pathfinder.GraphHeight;
+            int width = pathfinder.GraphWidth;
+            int height = pathfinder.GraphHeight;
 
-            MeshUtility.CreateEmptyMeshArrays(width * height, out _vertices, out _uv, out _tris);
+            MeshUtility.CreateEmptyMeshData(width * height, out _vertices, out _uv, out _tris);
 
             for (int x = 0; x < width; x++)
-            {
                 for (int y = 0; y < height; y++)
-                {
                     UpdateNode(x, y);
-                }
-            }
 
             RebuildMesh();
 
-            m_Filter.mesh = _mesh;
+            if (m_Filter && m_Filter.sharedMesh != _mesh)
+                m_Filter.sharedMesh = _mesh;
         }
 
         private void RebuildMesh()
         {
+            _mesh.Clear(false);
             _mesh.vertices = _vertices;
             _mesh.uv = _uv;
             _mesh.triangles = _tris;
@@ -71,36 +87,18 @@ namespace Kennedy.UnityUtility.Pathfinding
         private void UpdateNode(int x, int y)
         {
             CellPosition cell = new CellPosition(x, y);
-            bool walkable = _pathfinder.graph != null && _pathfinder.graph.GetNode(cell).walkable;
-            Vector2 uvVal = new Vector2(walkable ? 0 : 1, 0);
-            Vector2 position = _pathfinder.GetCellWorldPosition(cell);
-            position += new Vector2(.5f, .5f) * _pathfinder.GraphCellSize;
-            int index = x + y * _pathfinder.GraphWidth;
+            bool walkable = pathfinder.graph != null && pathfinder.graph.GetNode(cell).walkable;
 
-            MeshUtility.AddToMeshArrays(_vertices, _uv, _tris, index, position, 0, Vector2.one * _pathfinder.GraphCellSize, uvVal, uvVal);
-        }
+            Vector2 uv0 = new Vector2(walkable ? 0.0f : 0.5f, 1f);
+            Vector2 uv1 = new Vector2(uv0.x + 0.5f, 1f);
+            Vector2 uv2 = new Vector2(uv1.x, 1f);
+            Vector2 uv3 = new Vector2(uv0.x, 0f);
 
-        private void OnDrawGizmos()
-        {
-            if (_pathfinder == null) _pathfinder = GetComponent<Pathfinder>();
+            Vector2 position = pathfinder.GetCellWorldPosition(cell);
+            position += new Vector2(.5f, .5f) * pathfinder.GraphCellSize;
+            int index = x + y * pathfinder.GraphWidth;
 
-            float minX = _pathfinder.GraphOffset.x, maxX = _pathfinder.GraphWidth * _pathfinder.GraphCellSize + _pathfinder.GraphOffset.x;
-            float minY = _pathfinder.GraphOffset.y, maxY = _pathfinder.GraphHeight * _pathfinder.GraphCellSize + _pathfinder.GraphOffset.y;
-
-            Gizmos.color = new Color(1, 0.92f, 0.016f, .25f);
-            for (int x = 0; x < _pathfinder.GraphWidth; x++)
-            {
-                float xWorldPos = x * _pathfinder.GraphCellSize + _pathfinder.GraphOffset.x;
-                Gizmos.DrawLine(new Vector2(xWorldPos, minY), new Vector2(xWorldPos, maxY));
-            }
-            for (int y = 0; y < _pathfinder.GraphHeight; y++)
-            {
-                float yWorldPos = y * _pathfinder.GraphCellSize + _pathfinder.GraphOffset.y;
-                Gizmos.DrawLine(new Vector2(minX, yWorldPos), new Vector2(maxX, yWorldPos));
-            }
-
-            Gizmos.DrawLine(new Vector2(minX, maxY), new Vector2(maxX, maxY));
-            Gizmos.DrawLine(new Vector2(maxX, minY), new Vector2(maxX, maxY));
+            MeshUtility.AddQuadToMeshData(_vertices, _uv, _tris, index, position, pathfinder.GraphCellSize, uv0, uv1, uv2, uv3);
         }
     }
 }

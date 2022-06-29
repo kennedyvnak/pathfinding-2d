@@ -94,6 +94,18 @@ namespace Kennedy.UnityUtility.Pathfinding
             return path;
         }
 
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (m_GraphWidth < 0)
+                m_GraphWidth = 0;
+            if (m_GraphHeight < 0)
+                m_GraphHeight = 0;
+            if (TryGetComponent<PathfinderRenderer>(out var renderer))
+                renderer.GenerateMesh();
+        }
+#endif
+
         public void ReleasePath(ref Path p) => _pool.Release(ref p);
 
         public Vector2 GetCellWorldPosition(CellPosition cell)

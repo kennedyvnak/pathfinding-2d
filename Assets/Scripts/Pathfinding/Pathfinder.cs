@@ -102,12 +102,6 @@ namespace Kennedy.UnityUtility.Pathfinding
             if (m_GraphHeight < 0)
                 m_GraphHeight = 0;
 
-            UnityEditor.EditorApplication.update += GenerateMesh;
-        }
-
-        private void GenerateMesh()
-        {
-            UnityEditor.EditorApplication.update -= GenerateMesh;
             if (TryGetComponent<PathfinderRenderer>(out var renderer))
                 renderer.GenerateMesh();
         }

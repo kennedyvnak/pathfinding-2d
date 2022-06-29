@@ -10,14 +10,7 @@ namespace Kennedy.UnityUtility.Pathfinding
         private static readonly Quaternion k_vr2 = Quaternion.Euler(0, 0, -90);
         private static readonly Quaternion k_vr3 = Quaternion.Euler(0, 0, 0);
 
-        public static void CreateEmptyMeshData(int quadCount, out Vector3[] vertices, out Vector2[] uv, out int[] tris)
-        {
-            vertices = new Vector3[4 * quadCount];
-            uv = new Vector2[4 * quadCount];
-            tris = new int[6 * quadCount];
-        }
-
-        public static void AddQuadToMeshData(Vector3[] vertices, Vector2[] uv, int[] tris, int index, Vector3 pos, float size, Vector2 uv0, Vector2 uv1, Vector2 uv2, Vector2 uv3)
+        public static void AddQuadToMeshData(Vector3[] vertices, Vector2[] uv, int[] tris, Color[] colors, int index, Vector3 pos, float size, Color color, float transparency)
         {
             // relocate vertices
             int vIndex = index * 4;
@@ -33,11 +26,17 @@ namespace Kennedy.UnityUtility.Pathfinding
             vertices[vIndex2] = pos + k_vr2 * baseSize;
             vertices[vIndex3] = pos + k_vr3 * baseSize;
 
+            color.a = transparency;
+            colors[vIndex0] = color;
+            colors[vIndex1] = color;
+            colors[vIndex2] = color;
+            colors[vIndex3] = color;
+
             // relocate UVs
-            uv[vIndex0] = uv0;
-            uv[vIndex1] = uv1;
-            uv[vIndex2] = uv2;
-            uv[vIndex3] = uv3;
+            uv[vIndex0] = new Vector2(0, 0);
+            uv[vIndex1] = new Vector2(0, 1);
+            uv[vIndex2] = new Vector2(1, 0);
+            uv[vIndex3] = new Vector2(1, 1);
 
             // create triangles
             int tIndex = index * 6;
